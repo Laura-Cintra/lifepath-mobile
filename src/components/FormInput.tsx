@@ -1,5 +1,11 @@
 import { ReactElement } from "react";
-import { StyleSheet, Text, TextInput, TextInputProps, View } from "react-native";
+import {
+    StyleSheet,
+    Text,
+    TextInput,
+    TextInputProps,
+    View,
+} from "react-native";
 import colors from "../theme/colors";
 
 interface FormInputProps extends TextInputProps {
@@ -9,12 +15,20 @@ interface FormInputProps extends TextInputProps {
   icon?: ReactElement;
 }
 
-export default function FormInput({ label, value, onChangeText, icon, ...props }: FormInputProps) {
+export default function FormInput({
+  label,
+  value,
+  onChangeText,
+  icon,
+  ...props
+}: FormInputProps) {
   return (
     <View style={{ marginBottom: 15 }}>
       <Text style={[styles.label, { color: colors.text }]}>{label}</Text>
 
-      <View style={[styles.inputContainer, { borderColor: colors.textSecondary }]}>
+      <View
+        style={[styles.inputContainer, { borderColor: colors.textSecondary }]}
+      >
         {icon && <View style={styles.icon}>{icon}</View>}
 
         <TextInput
