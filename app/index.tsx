@@ -1,7 +1,8 @@
 import { AntDesign, MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { MotiImage, MotiText, MotiView } from "moti";
 import { useState } from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import FormInput from "../src/components/FormInput";
 import { useUser } from "../src/context/UserContext";
 import colors from "../src/theme/colors";
@@ -22,48 +23,92 @@ export default function LoginScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.body}>
-        <View style={styles.header}>
-          <Image
+
+        <MotiView
+          from={{ opacity: 0, translateY: -25 }}
+          animate={{ opacity: 1, translateY: 0 }}
+          transition={{ type: "timing", duration: 600 }}
+          style={styles.header}
+        >
+          <MotiImage
             source={require("../assets/lifepath-logo.png")}
             style={styles.logo}
+            from={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ type: "spring", delay: 200 }}
             resizeMode="contain"
           />
-        </View>
+        </MotiView>
 
-        <View style={styles.form}>
-          <Text style={[styles.title, { color: colors.text }]}>Login</Text>
+        <MotiView
+          from={{ opacity: 0, translateY: 15 }}
+          animate={{ opacity: 1, translateY: 0 }}
+          transition={{ type: "timing", duration: 500, delay: 350 }}
+          style={styles.form}
+        >
+          <MotiText
+            from={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 450 }}
+            style={[styles.title, { color: colors.text }]}
+          >
+            Login
+          </MotiText>
 
-          <FormInput
-            label="E-mail"
-            value={email}
-            onChangeText={setEmail}
-            placeholder="Digite seu e-mail"
-            keyboardType="email-address"
-            icon={
-              <MaterialIcons name="email" size={22} color={colors.secondary} />
-            }
-          />
+          <MotiView
+            from={{ opacity: 0, translateY: 15 }}
+            animate={{ opacity: 1, translateY: 0 }}
+            transition={{ delay: 550 }}
+          >
+            <FormInput
+              label="E-mail"
+              value={email}
+              onChangeText={setEmail}
+              placeholder="Digite seu e-mail"
+              keyboardType="email-address"
+              icon={<MaterialIcons name="email" size={22} color={colors.secondary} />}
+            />
+          </MotiView>
 
-          <FormInput
-            label="Senha"
-            value={senha}
-            onChangeText={setSenha}
-            placeholder="Digite sua senha"
-            secureTextEntry
-            icon={<AntDesign name="lock" size={22} color={colors.secondary} />}
-          />
+          <MotiView
+            from={{ opacity: 0, translateY: 15 }}
+            animate={{ opacity: 1, translateY: 0 }}
+            transition={{ delay: 700 }}
+          >
+            <FormInput
+              label="Senha"
+              value={senha}
+              onChangeText={setSenha}
+              placeholder="Digite sua senha"
+              secureTextEntry
+              icon={<AntDesign name="lock" size={22} color={colors.secondary} />}
+            />
+          </MotiView>
 
-          <TouchableOpacity style={styles.button} onPress={handleLogin}>
-            <Text style={styles.buttonText}>Entrar</Text>
-          </TouchableOpacity>
+          <MotiView
+            from={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ type: "spring", delay: 900 }}
+          >
+            <TouchableOpacity style={styles.button} onPress={handleLogin}>
+              <Text style={styles.buttonText}>Entrar</Text>
+            </TouchableOpacity>
+          </MotiView>
 
-          <TouchableOpacity onPress={() => router.push("/CadastrarScreen")}>
-            <Text style={[styles.link, { color: colors.textSecondary }]}>
-              Não possui conta?
-              <Text style={{ color: colors.primary }}> Cadastre-se</Text>
-            </Text>
-          </TouchableOpacity>
-        </View>
+          <MotiView
+            from={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1100 }}
+          >
+            <TouchableOpacity onPress={() => router.push("/CadastrarScreen")}>
+              <Text style={[styles.link, { color: colors.textSecondary }]}>
+                Não possui conta?
+                <Text style={{ color: colors.primary }}> Cadastre-se</Text>
+              </Text>
+            </TouchableOpacity>
+          </MotiView>
+
+        </MotiView>
       </View>
     </View>
   );

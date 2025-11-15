@@ -48,7 +48,11 @@ export default function OnboardingObjetivos() {
         transition={{ duration: 400 }}
         style={styles.searchContainer}
       >
-        <Ionicons name="search-outline" size={20} color={colors.textSecondary} />
+        <Ionicons
+          name="search-outline"
+          size={20}
+          color={colors.textSecondary}
+        />
         <TextInput
           placeholder="Buscar objetivos"
           placeholderTextColor={colors.textSecondary}
