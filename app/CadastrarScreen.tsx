@@ -18,7 +18,7 @@ export default function CadastrarScreen() {
     if (!nome || !email || !senha) return;
 
     await login(nome);
-    router.replace("/home");
+    router.replace("/Onboarding")
   };
 
   return (
