@@ -1,3 +1,4 @@
+import MessageModal from "@/src/components/MessageModal";
 import { AntDesign, FontAwesome5, MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { MotiImage, MotiText, MotiView } from "moti";
@@ -15,8 +16,17 @@ export default function CadastrarScreen() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
 
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [isSuccess, setIsSuccess] = useState(false);
+
   const handleRegister = async () => {
-    if (!nome || !email || !senha) return;
+    if (!nome || !email || !senha) {
+      setModalMessage("Preencha todos os campos.");
+      setIsSuccess(false);
+      setModalVisible(true);
+      return;
+    }
 
     await login(nome);
     router.replace("/Onboarding");
@@ -134,6 +144,13 @@ export default function CadastrarScreen() {
           </MotiView>
         </MotiView>
       </View>
+
+      <MessageModal
+        visible={modalVisible}
+        message={modalMessage}
+        isSuccess={isSuccess}
+        onClose={() => setModalVisible(false)}
+      />
     </View>
   );
 }
