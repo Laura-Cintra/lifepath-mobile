@@ -1,3 +1,4 @@
+import MessageModal from "@/src/components/MessageModal";
 import { AntDesign, MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { MotiImage, MotiText, MotiView } from "moti";
@@ -14,8 +15,18 @@ export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
 
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [isSuccess, setIsSuccess] = useState(false);
+
   const handleLogin = async () => {
-    if (!email || !senha) return;
+    if (!email || !senha) {
+      setModalMessage("Preencha todos os campos.");
+      setIsSuccess(false);
+      setModalVisible(true);
+      return;
+    }
+
     await login(email);
     router.replace("/home");
   };
@@ -23,7 +34,6 @@ export default function LoginScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.body}>
-
         <MotiView
           from={{ opacity: 0, translateY: -25 }}
           animate={{ opacity: 1, translateY: 0 }}
@@ -66,7 +76,13 @@ export default function LoginScreen() {
               onChangeText={setEmail}
               placeholder="Digite seu e-mail"
               keyboardType="email-address"
-              icon={<MaterialIcons name="email" size={22} color={colors.secondary} />}
+              icon={
+                <MaterialIcons
+                  name="email"
+                  size={22}
+                  color={colors.secondary}
+                />
+              }
             />
           </MotiView>
 
@@ -81,7 +97,9 @@ export default function LoginScreen() {
               onChangeText={setSenha}
               placeholder="Digite sua senha"
               secureTextEntry
-              icon={<AntDesign name="lock" size={22} color={colors.secondary} />}
+              icon={
+                <AntDesign name="lock" size={22} color={colors.secondary} />
+              }
             />
           </MotiView>
 
@@ -107,9 +125,14 @@ export default function LoginScreen() {
               </Text>
             </TouchableOpacity>
           </MotiView>
-
         </MotiView>
       </View>
+      <MessageModal
+        visible={modalVisible}
+        message={modalMessage}
+        isSuccess={isSuccess}
+        onClose={() => setModalVisible(false)}
+      />
     </View>
   );
 }

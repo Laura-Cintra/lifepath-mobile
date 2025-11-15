@@ -27,7 +27,7 @@ export default function MessageModal({
           from={{ opacity: 0, scale: 0.8, translateY: 10 }}
           animate={{ opacity: 1, scale: 1, translateY: 0 }}
           exit={{ opacity: 0, scale: 0.8 }}
-          transition={{ type: "timing", duration: 90 }}
+          transition={{ type: "timing", duration: 50 }}
           style={[
             styles.modalContent,
             isSuccess ? styles.successModal : styles.errorModal,
