@@ -11,4 +11,6 @@ export default {
   modalRed: "#e74c3c",
   white: "#FFFFFF",
   black: "#000000",
+  gray: "#CBD5E1",
+  lightGray: "#E5E7EB"
 };
