@@ -89,7 +89,16 @@ export default function OnboardingObjetivos() {
             styles.button,
             { opacity: selectedObjectives.length < 3 ? 0.4 : 1 },
           ]}
-          onPress={() => router.replace("/home")}
+          onPress={() => {
+            const selectedObjectivesNames = objetivos
+              .filter((objetivo) => selectedObjectives.includes(objetivo.id))
+              .map((objetivo) => objetivo.nome);
+
+            router.push({
+              pathname: "/OnboardingDetalhes",
+              params: { goals: JSON.stringify(selectedObjectivesNames) },
+            });
+          }}
         >
           <Text style={styles.buttonText}>Continuar</Text>
         </TouchableOpacity>
