@@ -27,7 +27,12 @@ export default function LoginScreen() {
       return;
     }
 
-    await login(email);
+    await login({
+      nome: email.split("@")[0],
+      email,
+      goals: [],
+    });
+
     router.replace("/home");
   };
 

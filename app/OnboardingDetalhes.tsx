@@ -11,10 +11,14 @@ import {
   View,
 } from "react-native";
 import MessageModal from "../src/components/MessageModal";
+import { useUser } from "../src/context/UserContext";
 import colors from "../src/theme/colors";
 
 export default function OnboardingDetalhes() {
   const router = useRouter();
+
+  const { updateUser } = useUser();
+
   const { goals } = useLocalSearchParams();
   const selectedGoals: string[] = goals ? JSON.parse(goals as string) : [];
 
@@ -25,7 +29,7 @@ export default function OnboardingDetalhes() {
   const [modalMsg, setModalMsg] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!details || !priority) {
       setModalMsg("Preencha todos os campos antes de continuar.");
       setIsSuccess(false);
@@ -33,13 +37,25 @@ export default function OnboardingDetalhes() {
       return;
     }
 
-    setIsSuccess(true);
-    setModalMsg("Objetivos registrados!");
-    setModalVisible(true);
+    try {
+      await updateUser({
+        goals: selectedGoals,
+        details,
+        priority,
+      });
 
-    setTimeout(() => {
-      router.replace("/home");
-    }, 900);
+      setIsSuccess(true);
+      setModalMsg("Objetivos registrados!");
+      setModalVisible(true);
+
+      setTimeout(() => {
+        router.replace("/home");
+      }, 900);
+    } catch {
+      setIsSuccess(false);
+      setModalMsg("Erro ao salvar.");
+      setModalVisible(true);
+    }
   };
 
   return (
@@ -50,7 +66,10 @@ export default function OnboardingDetalhes() {
         transition={{ duration: 500 }}
         style={styles.header}
       >
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.backButton}
+        >
           <Ionicons name="chevron-back" size={24} color={colors.primary} />
         </TouchableOpacity>
         <MotiText style={styles.title}>Detalhe seus objetivos</MotiText>
@@ -149,7 +168,7 @@ const styles = StyleSheet.create({
   header: {
     marginBottom: 10,
   },
-   backButton: {
+  backButton: {
     position: "absolute",
     left: -10,
     top: 0,

@@ -27,8 +27,12 @@ export default function CadastrarScreen() {
       setModalVisible(true);
       return;
     }
-
-    await login(nome);
+    
+    await login({
+      nome,
+      email,
+      goals: [],
+    });
     router.replace("/Onboarding");
   };
 

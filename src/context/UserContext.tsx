@@ -1,26 +1,51 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
+export interface UserData {
+  nome: string;
+  email: string;
+  goals?: string[];
+  details?: string;
+  senha?: string;
+  priority?: "ALTA" | "MEDIA" | "BAIXA";
+}
+
 interface UserContextType {
-  user: string | null;
-  login: (username: string) => Promise<void>;
+  user: UserData | null;
+  login: (data: UserData) => Promise<void>;
+  updateUser: (data: Partial<UserData>) => Promise<void>;
   logout: () => Promise<void>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<string | null>(null);
+  const [user, setUser] = useState<UserData | null>(null);
 
   useEffect(() => {
     AsyncStorage.getItem("@user").then((stored) => {
-      if (stored) setUser(stored);
+      if (stored) {
+        try {
+          setUser(JSON.parse(stored));
+        } catch {
+          setUser(null);
+        }
+      }
     });
   }, []);
 
-  const login = async (username: string) => {
-    await AsyncStorage.setItem("@user", username);
-    setUser(username);
+  const login = async (data: UserData) => {
+    await AsyncStorage.setItem("@user", JSON.stringify(data));
+    setUser(data);
+  };
+
+  const updateUser = async (data: Partial<UserData>) => {
+    if (!user) return;
+
+    const updatedUser: UserData = { ...user, ...data };
+
+    await AsyncStorage.setItem("@user", JSON.stringify(updatedUser));
+    setUser(updatedUser);
   };
 
   const logout = async () => {
@@ -29,7 +54,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <UserContext.Provider value={{ user, login, logout }}>
+    <UserContext.Provider value={{ user, login, updateUser, logout }}>
       {children}
     </UserContext.Provider>
   );
