@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   successModal: {
-    backgroundColor: colors.modalGreen,
+    backgroundColor: colors.primary,
   },
   errorModal: {
     backgroundColor: colors.modalRed,
