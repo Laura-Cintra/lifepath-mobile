@@ -27,13 +27,22 @@ export default function LoginScreen() {
       return;
     }
 
-    await login({
-      nome: email.split("@")[0],
-      email,
-      goals: [],
-    });
+    try {
+      await login(email, senha);
+      setIsSuccess(true);
+      setModalMessage("Login realizado com sucesso!");
+      setModalVisible(true);
 
-    router.replace("/home");
+      setTimeout(() => {
+        router.replace("/home");
+      }, 700);
+    } catch (error: any) {
+      setIsSuccess(false);
+      setModalMessage(
+        error.response?.data?.message || "Erro ao fazer login."
+      );
+      setModalVisible(true);
+    }
   };
 
   return (
@@ -55,83 +64,48 @@ export default function LoginScreen() {
           />
         </MotiView>
 
-        <MotiView
-          from={{ opacity: 0, translateY: 15 }}
-          animate={{ opacity: 1, translateY: 0 }}
-          transition={{ type: "timing", duration: 500, delay: 350 }}
-          style={styles.form}
-        >
-          <MotiText
-            from={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 450 }}
-            style={[styles.title, { color: colors.text }]}
-          >
+        <MotiView style={styles.form}>
+          <MotiText style={[styles.title, { color: colors.text }]}>
             Login
           </MotiText>
 
-          <MotiView
-            from={{ opacity: 0, translateY: 15 }}
-            animate={{ opacity: 1, translateY: 0 }}
-            transition={{ delay: 550 }}
-          >
-            <FormInput
-              label="E-mail"
-              value={email}
-              onChangeText={setEmail}
-              placeholder="Digite seu e-mail"
-              keyboardType="email-address"
-              icon={
-                <MaterialIcons
-                  name="email"
-                  size={22}
-                  color={colors.secondary}
-                />
-              }
-            />
-          </MotiView>
+          <FormInput
+            label="E-mail"
+            value={email}
+            onChangeText={setEmail}
+            placeholder="Digite seu e-mail"
+            keyboardType="email-address"
+            icon={
+              <MaterialIcons
+                name="email"
+                size={22}
+                color={colors.secondary}
+              />
+            }
+          />
 
-          <MotiView
-            from={{ opacity: 0, translateY: 15 }}
-            animate={{ opacity: 1, translateY: 0 }}
-            transition={{ delay: 700 }}
-          >
-            <FormInput
-              label="Senha"
-              value={senha}
-              onChangeText={setSenha}
-              placeholder="Digite sua senha"
-              secureTextEntry
-              icon={
-                <AntDesign name="lock" size={22} color={colors.secondary} />
-              }
-            />
-          </MotiView>
+          <FormInput
+            label="Senha"
+            value={senha}
+            onChangeText={setSenha}
+            placeholder="Digite sua senha"
+            secureTextEntry
+            icon={<AntDesign name="lock" size={22} color={colors.secondary} />}
+          />
 
-          <MotiView
-            from={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ type: "spring", delay: 900 }}
-          >
-            <TouchableOpacity style={styles.button} onPress={handleLogin}>
-              <Text style={styles.buttonText}>Entrar</Text>
-            </TouchableOpacity>
-          </MotiView>
+          <TouchableOpacity style={styles.button} onPress={handleLogin}>
+            <Text style={styles.buttonText}>Entrar</Text>
+          </TouchableOpacity>
 
-          <MotiView
-            from={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1100 }}
-          >
-            <TouchableOpacity onPress={() => router.push("/CadastrarScreen")}>
-              <Text style={[styles.link, { color: colors.textSecondary }]}>
-                Não possui conta?
-                <Text style={{ color: colors.primary }}> Cadastre-se</Text>
-              </Text>
-            </TouchableOpacity>
-          </MotiView>
+          <TouchableOpacity onPress={() => router.push("/CadastrarScreen")}>
+            <Text style={[styles.link, { color: colors.textSecondary }]}>
+              Não possui conta?
+              <Text style={{ color: colors.primary }}> Cadastre-se</Text>
+            </Text>
+          </TouchableOpacity>
         </MotiView>
       </View>
+
       <MessageModal
         visible={modalVisible}
         message={modalMessage}
