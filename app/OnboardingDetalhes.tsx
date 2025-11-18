@@ -1,7 +1,7 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { MotiText, MotiView } from "moti";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -11,16 +11,17 @@ import {
   View,
 } from "react-native";
 import MessageModal from "../src/components/MessageModal";
-import { useUser } from "../src/context/UserContext";
+import { getGoals, postOnboarding } from "../src/services/actions";
 import colors from "../src/theme/colors";
 
 export default function OnboardingDetalhes() {
   const router = useRouter();
 
-  const { updateUser } = useUser();
-
   const { goals } = useLocalSearchParams();
-  const selectedGoals: string[] = goals ? JSON.parse(goals as string) : [];
+  const selectedGoalIds: number[] = goals ? JSON.parse(goals as string) : [];
+
+  const [allGoals, setAllGoals] = useState<any[]>([]);
+  const [selectedGoalsNames, setSelectedGoalsNames] = useState<string[]>([]);
 
   const [details, setDetails] = useState("");
   const [priority, setPriority] = useState<"ALTA" | "MEDIA" | "BAIXA" | "">("");
@@ -28,6 +29,25 @@ export default function OnboardingDetalhes() {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMsg, setModalMsg] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
+
+  useEffect(() => {
+    loadAndMapGoals();
+  }, []);
+
+  const loadAndMapGoals = async () => {
+    try {
+      const response = await getGoals();
+      setAllGoals(response);
+
+      const names = response
+        .filter((goal: any) => selectedGoalIds.includes(goal.id))
+        .map((goal: any) => goal.title);
+
+      setSelectedGoalsNames(names);
+    } catch (error) {
+      console.log("Erro carregando objetivos:", error);
+    }
+  };
 
   const handleSubmit = async () => {
     if (!details || !priority) {
@@ -38,8 +58,8 @@ export default function OnboardingDetalhes() {
     }
 
     try {
-      await updateUser({
-        goals: selectedGoals,
+      await postOnboarding({
+        selectedGoals: selectedGoalIds,
         details,
         priority,
       });
@@ -48,30 +68,29 @@ export default function OnboardingDetalhes() {
       setModalMsg("Objetivos registrados!");
       setModalVisible(true);
 
-      setTimeout(() => {
-        router.replace("/home");
-      }, 900);
-    } catch {
+      setTimeout(() => router.replace("/home"), 900);
+    } catch (error: any) {
+      console.log("Erro ao salvar onboarding:", error?.response?.data || error);
+
       setIsSuccess(false);
-      setModalMsg("Erro ao salvar.");
+      setModalMsg(
+        error?.response?.data?.message ||
+          "Erro ao salvar. Verifique sua conexão."
+      );
       setModalVisible(true);
     }
   };
 
   return (
     <ScrollView style={styles.container}>
-      <MotiView
-        from={{ opacity: 0, translateY: -10 }}
-        animate={{ opacity: 1, translateY: 0 }}
-        transition={{ duration: 500 }}
-        style={styles.header}
-      >
+      <MotiView style={styles.header}>
         <TouchableOpacity
           onPress={() => router.back()}
           style={styles.backButton}
         >
           <Ionicons name="chevron-back" size={24} color={colors.primary} />
         </TouchableOpacity>
+
         <MotiText style={styles.title}>Detalhe seus objetivos</MotiText>
         <Text style={styles.subtitle}>
           Isso nos ajuda a montar um plano personalizado para você.
@@ -79,7 +98,7 @@ export default function OnboardingDetalhes() {
       </MotiView>
 
       <View style={styles.objectiveContainer}>
-        {selectedGoals.map((goal, index) => (
+        {selectedGoalsNames.map((goal, index) => (
           <MotiView
             key={index}
             from={{ opacity: 0, scale: 0.7 }}
@@ -97,52 +116,39 @@ export default function OnboardingDetalhes() {
         ))}
       </View>
 
-      <MotiView
-        from={{ opacity: 0, translateY: 20 }}
-        animate={{ opacity: 1, translateY: 0 }}
-        transition={{ delay: 300 }}
-      >
-        <Text style={styles.label}>Descreva melhor seu objetivo</Text>
+      <Text style={styles.label}>Descreva melhor seu objetivo</Text>
+      <TextInput
+        value={details}
+        onChangeText={setDetails}
+        placeholder="Ex: Quero migrar para front-end..."
+        placeholderTextColor={colors.textSecondary}
+        multiline
+        style={styles.input}
+      />
 
-        <TextInput
-          value={details}
-          onChangeText={setDetails}
-          placeholder="Ex: Quero migrar para front-end..."
-          placeholderTextColor={colors.textSecondary}
-          multiline
-          style={styles.input}
-        />
-      </MotiView>
+      <Text style={styles.label}>Prioridade</Text>
 
-      <MotiView
-        from={{ opacity: 0, translateY: 20 }}
-        animate={{ opacity: 1, translateY: 0 }}
-        transition={{ delay: 450 }}
-      >
-        <Text style={styles.label}>Prioridade</Text>
-
-        <View style={styles.priorityRow}>
-          {["ALTA", "MEDIA", "BAIXA"].map((p) => (
-            <TouchableOpacity
-              key={p}
+      <View style={styles.priorityRow}>
+        {["ALTA", "MEDIA", "BAIXA"].map((p) => (
+          <TouchableOpacity
+            key={p}
+            style={[
+              styles.priorityButton,
+              priority === p && styles.prioritySelected,
+            ]}
+            onPress={() => setPriority(p as any)}
+          >
+            <Text
               style={[
-                styles.priorityButton,
-                priority === p && styles.prioritySelected,
+                styles.priorityText,
+                priority === p && { color: colors.white },
               ]}
-              onPress={() => setPriority(p as any)}
             >
-              <Text
-                style={[
-                  styles.priorityText,
-                  priority === p && { color: colors.white },
-                ]}
-              >
-                {p}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </MotiView>
+              {p}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
 
       <TouchableOpacity style={styles.button} onPress={handleSubmit}>
         <Text style={styles.buttonText}>Concluir</Text>

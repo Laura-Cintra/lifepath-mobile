@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { MotiText, MotiView } from "moti";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   FlatList,
   StyleSheet,
@@ -11,13 +11,38 @@ import {
   View,
 } from "react-native";
 import ObjectiveItem from "../src/components/ObjectiveItem";
-import { objetivos } from "../src/data/objetivos";
+import { objetivosIcones } from "../src/data/objetivos";
+import { getGoals } from "../src/services/actions";
 import colors from "../src/theme/colors";
 
 export default function OnboardingObjetivos() {
   const router = useRouter();
+
+  const [goals, setGoals] = useState<
+    { id: number; title: string; icon: string }[]
+  >([]);
+
   const [selectedObjectives, setSelectedObjectives] = useState<number[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    loadGoals();
+  }, []);
+
+  const loadGoals = async () => {
+    try {
+      const data = await getGoals();
+
+      const objetivosMapeados = data.map((goal: any) => ({
+        ...goal,
+        icon: objetivosIcones[goal.id] ?? "ellipse-outline",
+      }));
+
+      setGoals(objetivosMapeados);
+    } catch (error) {
+      console.log("Erro ao buscar objetivos:", error);
+    }
+  };
 
   const toggleObjectiveSelection = (id: number) => {
     setSelectedObjectives((prevSelected) =>
@@ -27,27 +52,15 @@ export default function OnboardingObjetivos() {
     );
   };
 
-  const filteredObjectives = objetivos.filter((objective) =>
-    objective.nome.toLowerCase().includes(searchQuery.toLowerCase())
+  const filtered = goals.filter((objective) =>
+    objective.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
     <View style={styles.container}>
-      <MotiText
-        from={{ opacity: 0, translateY: -10 }}
-        animate={{ opacity: 1, translateY: 0 }}
-        transition={{ duration: 400 }}
-        style={styles.title}
-      >
-        Escolha 3 ou mais objetivos
-      </MotiText>
+      <MotiText style={styles.title}>Escolha 3 ou mais objetivos</MotiText>
 
-      <MotiView
-        from={{ opacity: 0, translateY: -10 }}
-        animate={{ opacity: 1, translateY: 0 }}
-        transition={{ duration: 400 }}
-        style={styles.searchContainer}
-      >
+      <MotiView style={styles.searchContainer}>
         <Ionicons
           name="search-outline"
           size={20}
@@ -63,14 +76,14 @@ export default function OnboardingObjetivos() {
       </MotiView>
 
       <FlatList
-        data={filteredObjectives}
+        data={filtered}
         numColumns={3}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={styles.listContent}
         renderItem={({ item, index }) => (
           <ObjectiveItem
-            title={item.nome}
-            icon={item.icone}
+            title={item.title}
+            icon={item.icon}
             isSelected={selectedObjectives.includes(item.id)}
             onSelect={() => toggleObjectiveSelection(item.id)}
             index={index}
@@ -78,31 +91,21 @@ export default function OnboardingObjetivos() {
         )}
       />
 
-      <MotiView
-        from={{ opacity: 0, translateY: 20 }}
-        animate={{ opacity: 1, translateY: 0 }}
-        transition={{ duration: 300 }}
+      <TouchableOpacity
+        disabled={selectedObjectives.length < 3}
+        style={[
+          styles.button,
+          { opacity: selectedObjectives.length < 3 ? 0.4 : 1 },
+        ]}
+        onPress={() =>
+          router.push({
+            pathname: "/OnboardingDetalhes",
+            params: { goals: JSON.stringify(selectedObjectives) },
+          })
+        }
       >
-        <TouchableOpacity
-          disabled={selectedObjectives.length < 3}
-          style={[
-            styles.button,
-            { opacity: selectedObjectives.length < 3 ? 0.4 : 1 },
-          ]}
-          onPress={() => {
-            const selectedObjectivesNames = objetivos
-              .filter((objetivo) => selectedObjectives.includes(objetivo.id))
-              .map((objetivo) => objetivo.nome);
-
-            router.push({
-              pathname: "/OnboardingDetalhes",
-              params: { goals: JSON.stringify(selectedObjectivesNames) },
-            });
-          }}
-        >
-          <Text style={styles.buttonText}>Continuar</Text>
-        </TouchableOpacity>
-      </MotiView>
+        <Text style={styles.buttonText}>Continuar</Text>
+      </TouchableOpacity>
     </View>
   );
 }
