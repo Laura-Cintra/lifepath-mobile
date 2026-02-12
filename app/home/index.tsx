@@ -15,7 +15,7 @@ import colors from "../../src/theme/colors";
 export default function HomeScreen() {
   const { user } = useUser();
   const router = useRouter();
-  const name = user?.nome || "Usuário";
+  const name = user?.name || "Usuário";
 
   return (
     <ScrollView
